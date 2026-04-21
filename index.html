@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MATIN ADMIN PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0000; --bg-card: #150202; --primary-red: #ff3131; 
+            --dark-red: #8b0000; --gold: #ffb800; --border: rgba(255, 49, 49, 0.2);
+            --gradient-red: linear-gradient(135deg, #1a0101 0%, #3d0202 100%);
+        }
+        body, html { background: var(--bg-dark); color: #f8fafc; font-family: 'Khmer OS Battambang', sans-serif; margin: 0; padding: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Login Screen Style */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .login-box { background: var(--gradient-red); padding: 30px; border-radius: 25px; border: 2px solid var(--primary-red); width: 100%; max-width: 320px; text-align: center; box-shadow: 0 0 30px rgba(255, 49, 49, 0.3); }
+        .login-box i { font-size: 50px; color: var(--primary-red); margin-bottom: 20px; }
+        .login-box input { width: 100%; background: #000; border: 1px solid var(--primary-red); padding: 15px; border-radius: 12px; color: #fff; text-align: center; font-size: 20px; margin-bottom: 15px; outline: none; }
+        .login-box button { width: 100%; background: var(--primary-red); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 900; cursor: pointer; }
+
+        .navbar { background: #1a0101; padding: 0 15px; height: 70px; display: flex; align-items: center; border-bottom: 2px solid var(--dark-red); flex-shrink: 0; z-index: 10; }
+        .navbar i.fa-bars { font-size: 28px; color: var(--primary-red); cursor: pointer; padding: 10px; }
+        .nav-title { margin-left: 10px; font-size: 20px; font-weight: 900; text-shadow: 0 0 10px var(--primary-red); }
+
+        .ticket-nav-stat { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .stat-mini { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; background: rgba(255, 255, 255, 0.05); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); }
+
+        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; flex-shrink: 0; }
+        .s-card { background: var(--gradient-red); padding: 15px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        .s-card i { font-size: 24px; color: var(--primary-red); margin-bottom: 5px; display: block; filter: drop-shadow(0 0 5px var(--primary-red)); }
+        .s-card h4 { margin: 0; font-size: 19px; font-weight: 900; }
+
+        .table-wrapper { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 10px 10px; }
+        .scroll-box { background: #0f0000; border-radius: 15px; border: 1px solid var(--border); overflow: auto; height: 100%; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        thead th { position: sticky; top: 0; background: #2a0101; color: var(--primary-red); font-size: 11px; padding: 14px 10px; z-index: 100; text-align: left; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+
+        .copy-btn { background: var(--primary-red); color: #fff; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; font-weight: bold; margin-left: 5px; }
+
+        .full-panel { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-dark); z-index: 3000; transition: 0.3s ease; display: flex; flex-direction: column; }
+        .full-panel.active { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3500; display: none; }
+        
+        .side-menu { position: fixed; left: -100%; top: 0; width: 300px; height: 100%; background: #0d0000; z-index: 4000; transition: 0.3s; padding: 20px; border-right: 2px solid var(--dark-red); }
+        .side-menu.active { left: 0; }
+        .menu-item { display: flex; align-items: center; padding: 18px; color: #ff9494; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: bold; }
+        .menu-item i { font-size: 20px; margin-right: 15px; width: 30px; text-align: center; }
+        
+        .revenue-header { background: var(--gradient-red); margin: 15px; padding: 30px 20px; border-radius: 25px; border: 2px solid var(--gold); text-align: center; box-shadow: 0 0 25px rgba(255, 184, 0, 0.15); }
+        .revenue-header i.main-icon { font-size: 50px; color: var(--gold); margin-bottom: 15px; display: block; filter: drop-shadow(0 0 10px var(--gold)); }
+        .revenue-card { background: linear-gradient(90deg, #1a0101, #250202); margin: 0 15px 12px; padding: 18px; border-radius: 15px; border-left: 4px solid var(--gold); display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); cursor: pointer; -webkit-user-select: none; user-select: none; }
+        .archive-card { background: var(--gradient-red); margin: 10px 15px; padding: 15px; border-radius: 15px; border: 1px solid var(--border); cursor: pointer; -webkit-user-select: none; user-select: none; position: relative; }
+        .ticket-item { background: var(--gradient-red); margin: 15px; padding: 20px; border-radius: 20px; border: 1px solid var(--primary-red); cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        .form-container { background: var(--bg-card); margin: 10px; padding: 15px; border-radius: 20px; border: 2px solid var(--dark-red); }
+        input { width: 100%; background: #000; border: 1px solid var(--dark-red); padding: 12px; border-radius: 10px; color: #fff; outline: none; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
+        label { color: #ff9494; font-size: 11px; margin-left: 5px; display: block; }
+        .custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 15px 25px; border-radius: 12px; z-index: 10000; transition: 0.5s; font-weight: bold; }
+        .custom-alert.show { top: 20px; }
+
+        .confirm-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a0101; border: 2px solid var(--primary-red); padding: 25px; border-radius: 20px; z-index: 6000; display: none; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 0 30px rgba(255, 49, 49, 0.4); }
+        .confirm-dialog h3 { color: #fff; margin: 10px 0; font-size: 18px; }
+        .confirm-dialog p { color: #ccc; font-size: 13px; margin-bottom: 20px; }
+        .dialog-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-confirm { background: var(--primary-red); color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-cancel { background: #333; color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 1; }
+        .overlay-dialog { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5900; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <i class="fas fa-user-lock"></i>
+            <h2 style="color:#fff; margin-bottom:20px; font-weight:900;">ADMIN LOGIN</h2>
+            <input type="password" id="pass-input" placeholder="បញ្ចូលលេខកូដសម្ងាត់">
+            <button onclick="checkLogin()">ចូលប្រើប្រាស់</button>
+            <p id="login-msg" style="color:var(--primary-red); margin-top:15px; font-size:12px; display:none;">លេខកូដសម្ងាត់មិនត្រឹមត្រូវ!</p>
+        </div>
+    </div>
+
+    <div id="alert-box" class="custom-alert"><span>Message</span></div>
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+    <div class="overlay-dialog" id="overlay-dialog" onclick="hideConfirm()"></div>
+
+    <div id="confirm-dialog" class="confirm-dialog">
+        <i class="fas fa-trash-alt" style="font-size: 45px; color: var(--primary-red);"></i>
+        <h3>លុបទិន្នន័យ?</h3>
+        <p id="confirm-text">តើបងពិតជាចង់លុបទិន្នន័យនេះចេញមែនទេ?</p>
+        <div class="dialog-btns">
+            <button class="btn-confirm" id="btn-delete-go">យល់ព្រមលុប</button>
+            <button class="btn-cancel" onclick="hideConfirm()">បោះបង់</button>
+        </div>
+    </div>
+
+    <div class="side-menu" id="side-menu">
+        <h3 style="color:var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 900; font-size: 24px;">MATIN TOPUP</h3>
+        <div class="menu-item" onclick="closeAll()"><i class="fas fa-home"></i> HOME</div>
+        <div class="menu-item" onclick="openPanel('search-panel')"><i class="fas fa-user-shield"></i> ឆែកប្រវត្តិ ID </div>
+        <div class="menu-item" onclick="openPanel('ticket-panel')"><i class="fas fa-ticket-alt"></i> Ticket ភ្ញៀវកក់</div>
+        <div class="menu-item" onclick="openPanel('archive-panel')"><i class="fas fa-bell"></i> ការជូនដំណឹង</div>
+        <div class="menu-item" onclick="openPanel('revenue-panel')"><i class="fas fa-coins"></i> សរុបទឹកប្រាក់ប្រចាំថ្ងៃ</div>
+    </div>
+
+    <div class="navbar"><i class="fas fa-bars" onclick="toggleMenu()"></i> <div class="nav-title">MATIN TOPUP</div></div>
+    
+    <div class="stat-row">
+        <div class="s-card"><i class="fas fa-shopping-basket"></i><span>កម្មង់ថ្ងៃនេះ</span><h4><span id="m-count">0</span></h4></div>
+        <div class="s-card"><i class="fas fa-hand-holding-usd" style="color:var(--gold)"></i><span>សរុបលុយថ្ងៃនេះ</span><h4><span id="m-money">$0.00</span></h4></div>
+    </div>
+
+    <div class="table-wrapper"><div class="scroll-box"><table><thead><tr><th>Time (KH)</th><th>Game</th><th>Player ID</th><th>Zone ID</th><th>Package</th><th>Price</th></tr></thead><tbody id="main-rows"></tbody></table></div></div>
+
+    <div id="archive-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="window.history.back()"></i> <span class="nav-title">DAILY RECORDS</span></div>
+        <div id="archive-list" style="overflow-y: auto; padding-bottom: 20px;"></div>
+    </div>
+
+    <div id="archive-detail-panel" class="full-panel" style="z-index: 3100;">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="window.history.back()"></i> <span class="nav-title" id="archive-detail-title">DETAILS</span></div>
+        <div class="table-wrapper" style="margin-top: 10px;">
+            <div class="scroll-box">
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Game</th><th>Player ID</th><th>Zone ID</th><th>Package</th><th>Price</th></tr>
+                    </thead>
+                    <tbody id="archive-detail-rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="revenue-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="window.history.back()"></i> <span class="nav-title">DAILY REVENUE</span></div>
+        <div id="revenue-content" style="overflow-y: auto; flex-grow: 1; padding-bottom: 20px;">
+            <div id="today-revenue-box"></div>
+            <div style="margin: 20px 15px 10px; font-weight: 900; color: var(--gold); font-size: 14px;"><i class="fas fa-history"></i> HISTORY RECORDS</div>
+            <div id="revenue-history-list"></div>
+        </div>
+    </div>
+
+    <div id="ticket-panel" class="full-panel">
+        <div class="navbar">
+            <i class="fas fa-chevron-left" onclick="window.history.back()"></i> <span class="nav-title">TICKET MANAGER</span>
+            <div class="ticket-nav-stat">
+                <div class="stat-mini"><i class="fas fa-shopping-basket" style="color:var(--primary-red)"></i> <span id="t-count-nav">0</span></div>
+                <div class="stat-mini"><i class="fas fa-dollar-sign" style="color:var(--gold)"></i> <span id="t-money-nav">0.00</span></div>
+            </div>
+        </div>
+        <div class="form-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>Player ID</label><input type="text" id="p-id" placeholder="..." oninput="saveDraft()"></div>
+                <div><label>Zone ID</label><input type="text" id="z-id" placeholder="..." oninput="saveDraft()"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>ថ្ងៃត្រូវដាក់ឱ្យ</label><input type="date" id="del-date" oninput="saveDraft()"></div>
+                <div><label>ថ្ងៃលុបចោល</label><input type="date" id="exp-date" oninput="saveDraft()"></div>
+            </div>
+            <button onclick="handleSync()" style="width:100%; background:var(--primary-red); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:900; margin-top:10px; cursor:pointer;"><i class="fas fa-save"></i> រក្សាទុក TICKET</button>
+        </div>
+        <div id="ticket-list" style="overflow-y: auto; flex-grow: 1;"></div>
+    </div>
+
+    <div id="search-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="window.history.back()"></i> <span class="nav-title">SEARCH HISTORY</span></div>
+        <div style="padding: 15px;"><input type="text" id="db-search" placeholder="វាយ ID ដើម្បីឆែកប្រវត្តិ..." oninput="dbSearch()"></div>
+        <div class="stat-row">
+            <div class="s-card"><i class="fas fa-shopping-basket"></i><span>ចំនួនទិញសរុប</span><h4><span id="db-count">0</span></h4></div>
+            <div class="s-card"><i class="fas fa-hand-holding-usd" style="color:var(--gold)"></i><span>ចាយលុយសរុប</span><h4><span id="db-money">$0.00</span></h4></div>
+        </div>
+        <div class="table-wrapper">
+            <div class="scroll-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th><th>Game</th><th> Player ID</th><th>Zone ID</th><th>Package</th><th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-rows"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7LTZYu7LJZgd00DqXvFZ47DW_EA_XwNplqBDgNyO6V1_GEteA5SaXJclNyTue6eYabg/exec";
+        const APP_PASSWORD = "273404"; 
+        
+        let allData = [];
+        let savedTickets = [];
+        let hiddenRecords = JSON.parse(localStorage.getItem('matin_hidden_ui')) || [];
+        let hiddenRevenue = JSON.parse(localStorage.getItem('matin_hidden_revenue')) || [];
+        
+        let longPressTimer;
+        let isLongPress = false;
+        let deleteContext = { type: null, value: null };
+
+        async function fetchTicketsFromCloud() {
+            try {
+                const res = await fetch(SCRIPT_URL + "?action=readTickets");
+                const data = await res.json();
+                savedTickets = data.slice(1).map(row => ({
+                    game: row[1], pid: row[2], zid: row[3], pkg: row[4], price: row[5], delivery: row[6], expiry: row[7]
+                }));
+                renderTickets();
+            } catch (e) { console.log("Sync Error"); }
+        }
+
+        window.addEventListener('popstate', function (event) {
+            const activePanel = document.querySelector('.full-panel.active');
+            const activeMenu = document.querySelector('.side-menu.active');
+            if (activePanel) {
+                document.querySelectorAll('.full-panel').forEach(el => el.classList.remove('active'));
+                toggleMenu(true); 
+            } else if (activeMenu) {
+                document.getElementById('side-menu').classList.remove('active');
+                document.getElementById('overlay').style.display = 'none';
+            }
+        });
+
+        function toggleMenu(isBack = false) { 
+            if(!isBack) { history.pushState({menu: true}, ""); }
+            document.getElementById('side-menu').classList.add('active'); 
+            document.getElementById('overlay').style.display = 'block'; 
+        }
+
+        function openPanel(id) { 
+            history.pushState({panel: true}, ""); 
+            document.querySelectorAll('.full-panel').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); 
+            document.getElementById('side-menu').classList.remove('active');
+            document.getElementById('overlay').style.display = 'none';
+            if(id==='archive-panel') renderArchive(); 
+            if(id==='revenue-panel') renderRevenue();
+            if(id==='ticket-panel') { fetchTicketsFromCloud(); loadDraft(); }
+        }
+
+        function checkLogin() {
+            const input = document.getElementById('pass-input').value;
+            if (input === APP_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                loadData(); setInterval(loadData, 30000);
+            } else {
+                document.getElementById('login-msg').style.display = 'block';
+            }
+        }
+
+        function showAlert(msg) { const b = document.getElementById('alert-box'); b.querySelector('span').innerText = msg; b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 3000); }
+        function closeAll() { document.querySelectorAll('.full-panel, .side-menu').forEach(el => el.classList.remove('active')); document.getElementById('overlay').style.display = 'none'; hideConfirm(); }
+        function copy(t) { if(t && t !== "0") { navigator.clipboard.writeText(t); showAlert("ចម្លងរួចរាល់!"); } }
+        function hideConfirm() { document.getElementById('confirm-dialog').style.display = 'none'; document.getElementById('overlay-dialog').style.display = 'none'; }
+
+        function getKHTime(dateStr) { return new Date(dateStr).toLocaleString('en-GB', { timeZone: 'Asia/Phnom_Penh' }); }
+        function getKHDateOnly(dateStr) { return new Date(dateStr).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' }); }
+
+        async function loadData() {
+            try {
+                const res = await fetch(SCRIPT_URL + "?action=read");
+                allData = (await res.json()).slice(1).map(row => ({ uid: row[0] + row[2], data: row })).reverse();
+                renderMain();
+            } catch (e) {}
+        }
+
+        function parseIDs(row) {
+            let pid = row[2] ? row[2].toString().trim() : "";
+            let zid = row[5] ? row[5].toString().trim() : "";
+            if (pid.includes("(") && pid.includes(")")) {
+                const match = pid.match(/(.+)\((.+)\)/);
+                if (match) { pid = match[1].trim(); zid = match[2].trim(); }
+            }
+            return { pid, zid };
+        }
+
+        function startPress(type, value) {
+            isLongPress = false; deleteContext = { type, value };
+            longPressTimer = setTimeout(() => {
+                isLongPress = true;
+                document.getElementById('confirm-text').innerText = "លុបទិន្នន័យនេះមែនទេ?";
+                document.getElementById('confirm-dialog').style.display = 'block';
+                document.getElementById('overlay-dialog').style.display = 'block';
+            }, 800);
+        }
+        function endPress(callback) { clearTimeout(longPressTimer); if(!isLongPress && callback) callback(); }
+
+        document.getElementById('btn-delete-go').onclick = async function() {
+            if (deleteContext.type === 'archive') {
+                allData.forEach(item => { if (getKHDateOnly(item.data[0]) === deleteContext.value) hiddenRecords.push(item.uid); });
+                localStorage.setItem('matin_hidden_ui', JSON.stringify(hiddenRecords));
+                renderArchive(); renderMain();
+            } else if (deleteContext.type === 'revenue') {
+                hiddenRevenue.push(deleteContext.value);
+                localStorage.setItem('matin_hidden_revenue', JSON.stringify(hiddenRevenue));
+                renderRevenue();
+            } else if (deleteContext.type === 'ticket') {
+                await fetch(SCRIPT_URL + "?action=deleteTicket&pid=" + deleteContext.value);
+                fetchTicketsFromCloud();
+            }
+            showAlert("បានលុបរួចរាល់!"); hideConfirm();
+        };
+
+        function renderMain() {
+            const today = getKHDateOnly(new Date());
+            const list = document.getElementById('main-rows');
+            let html = ""; let c = 0; let m = 0;
+            allData.forEach(item => {
+                if (hiddenRecords.includes(item.uid)) return;
+                const row = item.data; const ids = parseIDs(row); const p = parseFloat(row[4]) || 0;
+                if (getKHDateOnly(row[0]) === today) {
+                    c++; m += p;
+                    html += `<tr><td>${getKHTime(row[0])}</td><td>${row[1]}</td><td>${ids.pid} <button class="copy-btn" onclick="copy('${ids.pid}')">COPY</button></td><td>${ids.zid} ${ids.zid?`<button class="copy-btn" onclick="copy('${ids.zid}')">COPY</button>`:''}</td><td>${row[3]}</td><td style="color:var(--gold);">$${p.toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('m-count').innerText = c;
+            document.getElementById('m-money').innerText = "$" + m.toFixed(2);
+            list.innerHTML = html;
+        }
+
+        function renderArchive() {
+            const daily = {};
+            allData.forEach(item => {
+                if (hiddenRecords.includes(item.uid)) return;
+                const d = getKHDateOnly(item.data[0]);
+                if (!daily[d]) daily[d] = { c: 0, m: 0 };
+                daily[d].c++; daily[d].m += parseFloat(item.data[4]) || 0;
+            });
+            let html = "";
+            Object.keys(daily).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(d => {
+                html += `<div class="archive-card" onmousedown="startPress('archive','${d}')" ontouchstart="startPress('archive','${d}')" onmouseup="endPress(() => showArchiveDetail('${d}'))" ontouchend="endPress(() => showArchiveDetail('${d}'))">
+                    <div style="color:var(--gold); font-weight:bold; margin-bottom:10px;"><i class="fas fa-calendar-day"></i> ថ្ងៃទី៖ ${d}</div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px;"><span><i class="fas fa-shopping-cart" style="color:var(--primary-red)"></i> ${daily[d].c} កម្មង់</span><b>$${daily[d].m.toFixed(2)}</b></div>
+                </div>`;
+            });
+            document.getElementById('archive-list').innerHTML = html;
+        }
+
+        function showArchiveDetail(date) {
+            history.pushState({detail: true}, ""); 
+            let html = "";
+            allData.forEach(item => {
+                if (hiddenRecords.includes(item.uid)) return;
+                const row = item.data;
+                if (getKHDateOnly(row[0]) === date) {
+                    const ids = parseIDs(row);
+                    html += `<tr><td>${getKHTime(row[0]).split(', ')[1]}</td><td>${row[1]}</td><td>${ids.pid}</td><td>${ids.zid}</td><td>${row[3]}</td><td style="color:var(--gold)">$${parseFloat(row[4]).toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('archive-detail-title').innerText = "ថ្ងៃទី " + date;
+            document.getElementById('archive-detail-rows').innerHTML = html;
+            document.getElementById('archive-detail-panel').classList.add('active');
+        }
+
+        function renderRevenue() {
+            const today = getKHDateOnly(new Date());
+            const daily = {};
+            allData.forEach(item => {
+                const d = getKHDateOnly(item.data[0]);
+                if (hiddenRevenue.includes(d)) return;
+                if (!daily[d]) daily[d] = 0; daily[d] += parseFloat(item.data[4]) || 0;
+            });
+            const todayTotal = daily[today] || 0;
+            document.getElementById('today-revenue-box').innerHTML = `
+                <div class="revenue-header">
+                    <i class="fas fa-coins main-icon"></i>
+                    <div style="font-size:14px; color:var(--gold); font-weight:bold;">Today Profit</div>
+                    <div style="font-size:42px; font-weight:900; color:var(--gold); text-shadow:0 0 15px rgba(255,184,0,0.5);">$${todayTotal.toFixed(2)}</div>
+                    <div style="font-size:11px; opacity:0.5;">DATE: ${today}</div>
+                </div>`;
+            let historyHtml = "";
+            Object.keys(daily).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(d => {
+                if (d !== today) {
+                    historyHtml += `
+                        <div class="revenue-card" onmousedown="startPress('revenue','${d}')" ontouchstart="startPress('revenue','${d}')">
+                            <div style="display:flex; align-items:center; gap:10px;"><i class="fas fa-calendar-alt" style="color:var(--gold);"></i><span style="font-weight:bold;">${d}</span></div>
+                            <b style="color:var(--gold); font-size:18px;">$${daily[d].toFixed(2)}</b>
+                        </div>`;
+                }
+            });
+            document.getElementById('revenue-history-list').innerHTML = historyHtml;
+        }
+
+        function saveDraft() { const draft = { pid: document.getElementById('p-id').value, zid: document.getElementById('z-id').value, del: document.getElementById('del-date').value, exp: document.getElementById('exp-date').value }; localStorage.setItem('ticket_draft', JSON.stringify(draft)); }
+        function loadDraft() { const draft = JSON.parse(localStorage.getItem('ticket_draft')); if (draft) { document.getElementById('p-id').value = draft.pid; document.getElementById('z-id').value = draft.zid; document.getElementById('del-date').value = draft.del; document.getElementById('exp-date').value = draft.exp; } }
+        
+        async function handleSync() {
+            const pInput = document.getElementById('p-id'); const dInput = document.getElementById('del-date'); const eInput = document.getElementById('exp-date');
+            if (!pInput.value || !dInput.value || !eInput.value) return showAlert("សូមបំពេញឱ្យគ្រប់!");
+            const found = allData.find(item => item.data[2].toString().includes(pInput.value.trim()));
+            if (found) {
+                const ids = parseIDs(found.data);
+                const ticketData = { action: "saveTicket", game: found.data[1], pid: ids.pid, zid: document.getElementById('z-id').value || ids.zid, pkg: found.data[3], price: found.data[4], delivery: dInput.value, expiry: eInput.value };
+                await fetch(SCRIPT_URL, { method: "POST", body: new URLSearchParams(ticketData) });
+                localStorage.removeItem('ticket_draft');
+                pInput.value = ""; document.getElementById('z-id').value = ""; dInput.value = ""; eInput.value = "";
+                fetchTicketsFromCloud(); showAlert("រក្សាទុក Ticket រួចរាល់!");
+            } else { showAlert("រកមិនឃើញ ID នេះទេ!"); }
+        }
+
+        function renderTickets() {
+            let html = ""; let c = 0; let m = 0;
+            savedTickets.forEach(t => {
+                c++; m += parseFloat(t.price) || 0;
+                html += `
+                <div class="ticket-item" onmousedown="startPress('ticket','${t.pid}')" ontouchstart="startPress('ticket','${t.pid}')">
+                    <div style="text-align:center; color:var(--primary-red); font-weight:900; margin-bottom:10px;">MATIN TOPUP TICKET</div>
+                    <div style="font-size:13px; line-height:1.8;">Game: <b style="color:var(--gold)">${t.game}</b><br>ID: <b>${t.pid}</b> | Zone: <b>${t.zid || '-'}</b><br>ថ្ងៃត្រូវដាក់ឱ្យ: <b style="color:var(--gold)">${t.delivery}</b><br>ថ្ងៃផុតកំណត់: <b style="color:#ccc">${t.expiry}</b><br>តម្លៃ: <b style="color:var(--primary-red)">$${parseFloat(t.price).toFixed(2)}</b></div>
+                </div>`;
+            });
+            document.getElementById('ticket-list').innerHTML = html;
+            document.getElementById('t-count-nav').innerText = c; document.getElementById('t-money-nav').innerText = m.toFixed(2);
+        }
+
+        function dbSearch() {
+            const val = document.getElementById('db-search').value.trim().toUpperCase();
+            const list = document.getElementById('db-rows');
+            if (!val) { list.innerHTML = ""; return; }
+            let html = ""; let c = 0; let m = 0;
+            allData.forEach(item => {
+                const row = item.data; const ids = parseIDs(row);
+                if (ids.pid.toUpperCase().includes(val)) {
+                    const p = parseFloat(row[4]) || 0; c++; m += p;
+                    html += `<tr><td>${getKHTime(row[0])}</td><td>${row[1]}</td><td>${ids.pid}</td><td>${ids.zid}</td><td>${row[3]}</td><td>$${p.toFixed(2)}</td></tr>`;
+                }
+            });
+            list.innerHTML = html;
+            document.getElementById('db-count').innerText = c; document.getElementById('db-money').innerText = "$" + m.toFixed(2);
+        }
+    </script>
+</body>
+</html>
