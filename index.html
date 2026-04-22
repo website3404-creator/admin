@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MATIN ADMIN PANEL</title>
+    
+    <meta name="theme-color" content="#ff3131">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MATIN ADMIN PANEL">
+    <link rel="apple-touch-icon" href="matin3-removebg-preview.png">
+
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1BVElOIFRPUEVQIFBBTkVMIiwKICAic2hvcnRfbmFtZSI6ICJNQVRJTiIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiaWNoX3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGEwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiI2ZmMzEzMSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogIm1hdGluMy1yZW1vdmViZy1wcmV2aWV3LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0000; --bg-card: #150202; --primary-red: #ff3131; 
+            --dark-red: #8b0000; --gold: #ffb800; --border: rgba(255, 49, 49, 0.2);
+            --gradient-red: linear-gradient(135deg, #1a0101 0%, #3d0202 100%);
+        }
+        body, html { background: var(--bg-dark); color: #f8fafc; font-family: 'Khmer OS Battambang', sans-serif; margin: 0; padding: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+        
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .login-box { background: var(--gradient-red); padding: 40px 30px; border-radius: 25px; border: 2px solid var(--primary-red); width: 100%; max-width: 320px; text-align: center; box-shadow: 0 0 30px rgba(255, 49, 49, 0.3); }
+        .login-box i { font-size: 50px; color: var(--primary-red); margin-bottom: 20px; }
+        .login-box input { width: 100%; background: #000; border: 1px solid var(--primary-red); padding: 15px; border-radius: 12px; color: #fff; text-align: center; font-size: 20px; margin-bottom: 15px; outline: none; box-sizing: border-box; }
+        .login-box button { width: 100%; background: var(--primary-red); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 900; cursor: pointer; }
+
+        .navbar { background: #1a0101; padding: 0 15px; height: 70px; display: flex; align-items: center; border-bottom: 2px solid var(--dark-red); flex-shrink: 0; z-index: 10; }
+        .navbar i.fa-bars { font-size: 28px; color: var(--primary-red); cursor: pointer; padding: 10px; }
+        .nav-title { margin-left: 10px; font-size: 20px; font-weight: 900; text-shadow: 0 0 10px var(--primary-red); }
+
+        .ticket-nav-stat { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .stat-mini { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; background: rgba(255, 255, 255, 0.05); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); }
+
+        .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; flex-shrink: 0; }
+        .s-card { background: var(--gradient-red); padding: 15px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        .s-card i { font-size: 24px; color: var(--primary-red); margin-bottom: 5px; display: block; filter: drop-shadow(0 0 5px var(--primary-red)); }
+        .s-card h4 { margin: 0; font-size: 19px; font-weight: 900; }
+
+        .table-wrapper { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 10px 10px; }
+        .scroll-box { background: #0f0000; border-radius: 15px; border: 1px solid var(--border); overflow: auto; height: 100%; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead th { position: sticky; top: 0; background: #2a0101; color: var(--primary-red); font-size: 11px; padding: 14px 10px; z-index: 100; text-align: left; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+
+        .copy-btn { background: var(--primary-red); color: #fff; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; font-weight: bold; margin-left: 5px; }
+
+        .full-panel { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: var(--bg-dark); z-index: 3000; transition: 0.3s ease; display: flex; flex-direction: column; }
+        .full-panel.active { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3500; display: none; }
+        
+        .side-menu { position: fixed; left: -100%; top: 0; width: 300px; height: 100%; background: #0d0000; z-index: 4000; transition: 0.3s; padding: 20px; border-right: 2px solid var(--dark-red); }
+        .side-menu.active { left: 0; }
+        .menu-item { display: flex; align-items: center; padding: 18px; color: #ff9494; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: bold; }
+        .menu-item i { font-size: 20px; margin-right: 15px; width: 30px; text-align: center; }
+        .menu-item.web-btn { color: var(--gold); border: 1px solid var(--gold); margin-top: 20px; border-radius: 10px; }
+        
+        .revenue-header { background: var(--gradient-red); margin: 15px; padding: 30px 20px; border-radius: 25px; border: 2px solid var(--gold); text-align: center; box-shadow: 0 0 25px rgba(255, 184, 0, 0.15); }
+        .revenue-header i.main-icon { font-size: 50px; color: var(--gold); margin-bottom: 15px; display: block; filter: drop-shadow(0 0 10px var(--gold)); }
+        .revenue-card { background: linear-gradient(90deg, #1a0101, #250202); margin: 0 15px 12px; padding: 18px; border-radius: 15px; border-left: 4px solid var(--gold); display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .revenue-card:active { transform: scale(0.95); opacity: 0.7; }
+        .archive-card { background: var(--gradient-red); margin: 10px 15px; padding: 15px; border-radius: 15px; border: 1px solid var(--border); cursor: pointer; user-select: none; transition: 0.2s; }
+        .archive-card:active { transform: scale(0.95); opacity: 0.7; }
+        .ticket-item { background: var(--gradient-red); margin: 15px; padding: 20px; border-radius: 20px; border: 1px solid var(--primary-red); position: relative; user-select: none; }
+
+        input { width: 100%; background: #000; border: 1px solid var(--dark-red); padding: 12px; border-radius: 10px; color: #fff; outline: none; box-sizing: border-box; font-size: 14px; margin-bottom: 10px; }
+        .custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 15px 25px; border-radius: 12px; z-index: 10000; transition: 0.5s; font-weight: bold; }
+        .custom-alert.show { top: 20px; }
+        
+        #refresh-indicator { text-align: center; padding: 10px; color: var(--gold); font-size: 12px; display: none; }
+
+        .modal-delete { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .delete-box { background: #1a0101; border: 2px solid var(--primary-red); border-radius: 20px; padding: 30px; text-align: center; width: 80%; max-width: 300px; transform: scale(0.7); transition: 0.3s; }
+        .modal-delete.show .delete-box { transform: scale(1); }
+        .delete-box i { font-size: 50px; color: var(--primary-red); margin-bottom: 15px; }
+        .delete-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .delete-btns button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: #333; color: white; }
+        .btn-confirm { background: var(--primary-red); color: white; }
+    </style>
+</head>
+<body ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd()">
+
+    <div id="refresh-indicator"><i class="fas fa-sync fa-spin"></i> កំពុង Refresh...</div>
+    <div id="login-screen">
+        <div class="login-box">
+            <i class="fas fa-user-lock"></i>
+            <h2 style="color:#fff; margin-bottom:20px; font-weight:900;">ADMIN LOGIN</h2>
+            <input type="password" id="pass-input" placeholder="បញ្ចូលលេខកូដសម្ងាត់">
+            <button onclick="checkLogin()">ចូលប្រើប្រាស់</button>
+            <p id="login-msg" style="color:var(--primary-red); margin-top:15px; font-size:12px; display:none;">លេខកូដសម្ងាត់មិនត្រឹមត្រូវ!</p>
+        </div>
+    </div>
+    
+    <div id="delete-modal" class="modal-delete">
+        <div class="delete-box">
+            <i class="fas fa-trash-alt"></i>
+            <h3 style="color:white; margin:0;">លុបបញ្ជីនេះ?</h3>
+            <p style="color:#aaa; font-size:12px;">តើអ្នកប្រាកដថាចង់លុបទិន្នន័យថ្ងៃនេះ</p>
+            <div class="delete-btns">
+                <button class="btn-cancel" onclick="closeDeleteModal()">បោះបង់</button>
+                <button class="btn-confirm" id="confirm-delete-btn">លុបចេញ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-box" class="custom-alert"><span>Message</span></div>
+    <div class="overlay" id="overlay" onclick="handleBack()"></div>
+
+    <div class="side-menu" id="side-menu">
+        <h3 style="color:var(--primary-red); text-align: center; margin-bottom: 30px; font-weight: 900; font-size: 24px;">MATIN ADMIN PANEL</h3>
+        <div class="menu-item" onclick="handleBack()"><i class="fas fa-home"></i> HOME</div>
+        <div class="menu-item" onclick="openPanel('search-panel')"><i class="fas fa-search"></i> ឆែកប្រវត្តិ ID </div>
+        <div class="menu-item" onclick="openPanel('archive-panel')"><i class="fas fa-bell"></i> ការជូនដំណឹង</div>
+        <div class="menu-item" onclick="openPanel('revenue-panel')"><i class="fas fa-coins"></i> សរុបទឹកប្រាក់ប្រចាំថ្ងៃ</div>
+        <div class="menu-item" onclick="openPanel('ticket-panel')"><i class="fas fa-ticket-alt"></i> TICKET MANAGER</div>
+        <div class="menu-item web-btn" onclick="window.open('https://matin.matintopup.store', '_blank')">
+            <i class="fas fa-globe"></i> ទៅកាន់វេបសាយ
+        </div>
+    </div>
+
+    <div class="navbar"><i class="fas fa-bars" onclick="toggleMenu()"></i> <div class="nav-title">MATIN ADMIN PANEL</div></div>
+    
+    <div class="stat-row">
+        <div class="s-card"><i class="fas fa-shopping-basket"></i><span>កម្មង់ថ្ងៃនេះ</span><h4><span id="m-count">0</span></h4></div>
+        <div class="s-card"><i class="fas fa-hand-holding-usd" style="color:var(--gold)"></i><span>សរុបលុយថ្ងៃនេះ</span><h4><span id="m-money">$0.00</span></h4></div>
+    </div>
+
+    <div class="table-wrapper">
+        <div class="scroll-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ថ្ងៃខែ (Date)</th>
+                        <th>ម៉ោង (Time)</th>
+                        <th>Game</th>
+                        <th>Player ID</th>
+                        <th>Zone ID</th>
+                        <th>Package</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody id="main-rows"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="archive-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="handleBack()"></i> <span class="nav-title">DAILY RECORDS</span></div>
+        <div id="archive-list" style="overflow-y: auto; padding-bottom: 20px;"></div>
+    </div>
+
+    <div id="archive-detail-panel" class="full-panel" style="z-index: 3100;">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="handleBack()"></i> <span class="nav-title" id="archive-detail-title">DETAILS</span></div>
+        <div class="table-wrapper" style="margin-top: 10px;"><div class="scroll-box"><table><thead><tr><th>Time</th><th>Game</th><th>Player ID</th><th>Zone ID</th><th>Package</th><th>Price</th></tr></thead><tbody id="archive-detail-rows"></tbody></table></div></div>
+    </div>
+
+    <div id="revenue-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="handleBack()"></i> <span class="nav-title">DAILY REVENUE</span></div>
+        <div id="revenue-content" style="overflow-y: auto; flex-grow: 1; padding-bottom: 20px;"><div id="today-revenue-box"></div><div style="margin: 20px 15px 10px; font-weight: 900; color: var(--gold); font-size: 14px;"><i class="fas fa-history"></i> HISTORY RECORDS</div><div id="revenue-history-list"></div></div>
+    </div>
+
+    <div id="ticket-panel" class="full-panel">
+        <div class="navbar">
+            <i class="fas fa-chevron-left" onclick="handleBack()"></i> <span class="nav-title">TICKET MANAGER</span>
+            <div class="ticket-nav-stat">
+                <div class="stat-mini"><i class="fas fa-ticket-alt" style="color:var(--primary-red)"></i>ចំនួន: <span id="t-count-nav">0</span></div>
+                <div class="stat-mini"><i class="fas fa-dollar-sign" style="color:var(--gold)"></i> សរុប: <span id="t-money-nav">0.00</span></div>
+            </div>
+        </div>
+        <div id="ticket-list" style="overflow-y: auto; flex-grow: 1; padding-top: 10px;"></div>
+    </div>
+
+    <div id="search-panel" class="full-panel">
+        <div class="navbar"><i class="fas fa-chevron-left" onclick="handleBack()"></i> <span class="nav-title">SEARCH HISTORY</span></div>
+        <div style="padding: 15px;"><input type="text" id="db-search" placeholder="វាយ ID ដើម្បីឆែកប្រវត្តិ..." oninput="dbSearch()"></div>
+        <div class="stat-row">
+            <div class="s-card"><i class="fas fa-shopping-basket"></i><span>ចំនួនទិញសរុប</span><h4><span id="db-count">0</span></h4></div>
+            <div class="s-card"><i class="fas fa-hand-holding-usd" style="color:var(--gold)"></i><span>ចាយលុយសរុប</span><h4><span id="db-money">$0.00</span></h4></div>
+        </div>
+        <div class="table-wrapper"><div class="scroll-box"><table><thead><tr><th>Date</th><th>Time</th><th>Game</th><th>Player ID</th><th>Zone ID</th><th>Package</th><th>Price</th></tr></thead><tbody id="db-rows"></tbody></table></div></div>
+    </div>
+
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request)); });`;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const url = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(url);
+            });
+        }
+
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNS9cJ0fvuh18URdTrPgZF5EFCLTWYaz8fWSJ-os5iV1oz97sGCQYLZ81NhoCqHnFBVg/exec";
+        const APP_PASSWORD = "273404"; 
+        let allData = [];
+        let lastOrderCount = 0;
+        let startY = 0;
+        let holdTimer;
+        let pendingDeleteId = null;
+        let isFirstLoad = true;
+
+        window.onload = function() {
+            if (sessionStorage.getItem("adminSession") === "active") {
+                document.getElementById('login-screen').style.display = 'none';
+                initApp();
+            }
+            const cachedData = localStorage.getItem("matin_data_cache");
+            if (cachedData) {
+                allData = JSON.parse(cachedData);
+                lastOrderCount = allData.length;
+                renderMain();
+                renderTickets();
+            }
+            history.replaceState({page: 'home'}, "");
+        };
+
+        window.onpopstate = function(event) {
+            closeAllVisuals();
+            if (event.state) {
+                if (event.state.menu === 'active') {
+                    document.getElementById('side-menu').classList.add('active');
+                    document.getElementById('overlay').style.display = 'block';
+                } else if (event.state.panel) {
+                    document.getElementById(event.state.panel).classList.add('active');
+                }
+            }
+        };
+
+        function toggleMenu() {
+            closeAllVisuals();
+            history.pushState({menu: 'active'}, "");
+            document.getElementById('side-menu').classList.add('active');
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function openPanel(id) { 
+            closeAllVisuals(); 
+            history.pushState({panel: id}, "");
+            document.getElementById(id).classList.add('active'); 
+            sessionStorage.setItem("activePanel", id);
+            if(id==='archive-panel') renderArchive(); 
+            if(id==='revenue-panel') renderRevenue();
+        }
+
+        function handleBack() { 
+            sessionStorage.setItem("activePanel", 'home');
+            window.history.back(); 
+        }
+
+        function closeAllVisuals() {
+            document.querySelectorAll('.full-panel, .side-menu').forEach(el => el.classList.remove('active'));
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function checkLogin() {
+            if (document.getElementById('pass-input').value === APP_PASSWORD) {
+                sessionStorage.setItem("adminSession", "active"); 
+                document.getElementById('login-screen').style.display = 'none';
+                initApp();
+            } else {
+                document.getElementById('login-msg').style.display = 'block';
+            }
+        }
+
+        function initApp() {
+            loadData(); 
+            setInterval(loadData, 2000); 
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch(SCRIPT_URL + "?action=read");
+                const rawData = (await res.json()).slice(1).reverse();
+                const filteredData = rawData.filter(row => row[row.length - 1] !== "Deleted");
+
+                if (!isFirstLoad && filteredData.length > lastOrderCount) {
+                    playNotif();
+                }
+                
+                allData = filteredData;
+                lastOrderCount = allData.length;
+                isFirstLoad = false;
+                
+                localStorage.setItem("matin_data_cache", JSON.stringify(allData));
+                renderMain();
+                renderTickets();
+                if(document.querySelector('#archive-panel.active')) renderArchive();
+                if(document.querySelector('#revenue-panel.active')) renderRevenue();
+            } catch (e) { console.log("Syncing..."); }
+        }
+
+        function playNotif() {
+            const sound = document.getElementById('notif-sound');
+            sound.currentTime = 0;
+            let playCount = 0;
+            const handleEnded = () => {
+                playCount++;
+                if (playCount < 2) {
+                    sound.play().catch(e => {});
+                } else {
+                    sound.removeEventListener('ended', handleEnded);
+                }
+            };
+            sound.addEventListener('ended', handleEnded);
+            sound.play().catch(e => {});
+        }
+
+        // --- មុខងារលុបដែលបានកែសម្រួលឱ្យត្រូវជាមួយ GOOGLE SCRIPT ---
+        function startHold(id) {
+            clearTimeout(holdTimer);
+            holdTimer = setTimeout(() => {
+                pendingDeleteId = id; // id នៅទីនេះគឺជាតម្លៃចេញពី row[0] (Date string)
+                const modal = document.getElementById('delete-modal');
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                document.getElementById('confirm-delete-btn').onclick = async function() {
+                    this.disabled = true;
+                    this.innerText = "កំពុងលុប...";
+                    
+                    // បំប្លែង Timestamp ឱ្យទៅជាទម្រង់ dd/MM/yyyy ដើម្បីឱ្យត្រូវជាមួយ Script action deleteByDate
+                    let dateObj = new Date(pendingDeleteId);
+                    let day = String(dateObj.getDate()).padStart(2, '0');
+                    let month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    let year = dateObj.getFullYear();
+                    let formattedDate = `${day}/${month}/${year}`;
+
+                    try {
+                        // ហៅទៅកាន់ Google Script ប្រើ parameter 'action=deleteByDate' និង 'date'
+                        const response = await fetch(`${SCRIPT_URL}?action=deleteByDate&date=${formattedDate}`);
+                        const result = await response.text();
+                        
+                        if (result === "Deleted") {
+                            closeDeleteModal();
+                            loadData();
+                            showAlert("បានលុបទិន្នន័យថ្ងៃទី " + formattedDate + " រួចរាល់!");
+                        } else {
+                            showAlert("ការលុបមិនជោគជ័យ!");
+                        }
+                    } catch (e) { 
+                        showAlert("មានបញ្ហាភ្ជាប់ទៅ Server!"); 
+                    }
+                    this.disabled = false;
+                    this.innerText = "លុបចេញ";
+                };
+            }, 1000); // កែសម្រួលឱ្យសង្កត់ ១ វិនាទីដើម្បីសុវត្ថិភាព
+        }
+
+        function clearHold() { clearTimeout(holdTimer); }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+            pendingDeleteId = null;
+        }
+
+        function parseIDs(row) {
+            let pid = row[2] ? row[2].toString().trim() : "";
+            let zid = row[5] ? row[5].toString().trim() : "";
+            if (pid.includes("(") && pid.includes(")")) {
+                const match = pid.match(/(.+)\((.+)\)/);
+                if (match) { pid = match[1].trim(); zid = match[2].trim(); }
+            }
+            return { pid, zid };
+        }
+
+        function renderMain() {
+            const todayStr = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+            const list = document.getElementById('main-rows');
+            let html = ""; let c = 0; let m = 0;
+            allData.forEach(row => {
+                const dateObj = new Date(row[0]);
+                const rowDate = dateObj.toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                const rowTime = dateObj.toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                const ids = parseIDs(row); const p = parseFloat(row[4]) || 0;
+                if (rowDate === todayStr) {
+                    c++; m += p;
+                    html += `<tr ontouchstart="startHold('${row[0]}')" ontouchend="clearHold()" onmousedown="startHold('${row[0]}')" onmouseup="clearHold()">
+                        <td style="color:#aaa">${rowDate}</td>
+                        <td>${rowTime}</td>
+                        <td>${row[1]}</td>
+                        <td>${ids.pid} <button class="copy-btn" onclick="copy('${ids.pid}')">COPY</button></td>
+                        <td>${ids.zid} ${ids.zid?`<button class="copy-btn" onclick="copy('${ids.zid}')">COPY</button>`:''}</td>
+                        <td>${row[3]}</td>
+                        <td style="color:var(--gold);">$${p.toFixed(2)}</td>
+                    </tr>`;
+                }
+            });
+            document.getElementById('m-count').innerText = c;
+            document.getElementById('m-money').innerText = "$" + m.toFixed(2);
+            list.innerHTML = html;
+        }
+
+        function renderTickets() {
+            let html = ""; let c = 0; let m = 0;
+            allData.forEach(row => {
+                const gameName = String(row[1]).toUpperCase();
+                const pkgName = String(row[3]).toUpperCase();
+                if (gameName.includes("TICKET") || pkgName.includes("TICKET")) {
+                    const ids = parseIDs(row); const p = parseFloat(row[4]) || 0;
+                    const dateObj = new Date(row[0]);
+                    const rowDate = dateObj.toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                    const rowTime = dateObj.toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                    c++; m += p;
+                    html += `
+                    <div class="ticket-item" ontouchstart="startHold('${row[0]}')" ontouchend="clearHold()" onmousedown="startHold('${row[0]}')" onmouseup="clearHold()">
+                        <div style="text-align:center; color:var(--primary-red); font-weight:900; margin-bottom:10px;">MATIN TOPUP TICKET</div>
+                        <div style="font-size:13px; line-height:1.8;">
+                            កាលបរិច្ឆេទ: <b style="color:#aaa">${rowDate} | ${rowTime}</b><br>
+                            Game: <b style="color:var(--gold)">${row[1]}</b><br>
+                            ID: <b>${ids.pid}</b> <button class="copy-btn" onclick="copy('${ids.pid}')">COPY</button><br>
+                            Zone: <b>${ids.zid || '-'}</b> ${ids.zid?`<button class="copy-btn" onclick="copy('${ids.zid}')">COPY</button>`:''}<br>
+                            Package: <b style="color:var(--gold)">${row[3]}</b><br>
+                            តម្លៃ: <b style="color:var(--primary-red)">$${p.toFixed(2)}</b>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('ticket-list').innerHTML = html;
+            document.getElementById('t-count-nav').innerText = c; 
+            document.getElementById('t-money-nav').innerText = m.toFixed(2);
+        }
+
+        function renderArchive() {
+            const daily = {};
+            allData.forEach(row => {
+                const d = new Date(row[0]).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                if (!daily[d]) daily[d] = { c: 0, m: 0, rawId: row[0] };
+                daily[d].c++; daily[d].m += parseFloat(row[4]) || 0;
+            });
+            let html = "";
+            Object.keys(daily).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(d => {
+                html += `<div class="archive-card" onclick="showArchiveDetail('${d}')" ontouchstart="startHold('${daily[d].rawId}')" ontouchend="clearHold()" onmousedown="startHold('${daily[d].rawId}')" onmouseup="clearHold()">
+                    <div style="color:var(--gold); font-weight:bold; margin-bottom:10px;"><i class="fas fa-calendar-day"></i> ថ្ងៃទី៖ ${d}</div>
+                    <div style="display:flex; justify-content:space-between; font-size:13px;"><span><i class="fas fa-shopping-cart" style="color:var(--primary-red)"></i> ${daily[d].c} កម្មង់</span><b>$${daily[d].m.toFixed(2)}</b></div>
+                </div>`;
+            });
+            document.getElementById('archive-list').innerHTML = html;
+        }
+
+        function renderRevenue() {
+            const today = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+            const daily = {};
+            const dailyRawId = {};
+            allData.forEach(row => {
+                const d = new Date(row[0]).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                if (!daily[d]) { daily[d] = 0; dailyRawId[d] = row[0]; }
+                daily[d] += parseFloat(row[4]) || 0;
+            });
+            const todayTotal = daily[today] || 0;
+            document.getElementById('today-revenue-box').innerHTML = `<div class="revenue-header"><i class="fas fa-coins main-icon"></i><div style="font-size:14px; color:var(--gold); font-weight:bold;">Today Profit</div><div style="font-size:42px; font-weight:900; color:var(--gold); text-shadow:0 0 15px rgba(255,184,0,0.5);">$${todayTotal.toFixed(2)}</div><div style="font-size:11px; opacity:0.5;">DATE: ${today}</div></div>`;
+            let historyHtml = "";
+            Object.keys(daily).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(d => {
+                if (d !== today) {
+                    historyHtml += `<div class="revenue-card" ontouchstart="startHold('${dailyRawId[d]}')" ontouchend="clearHold()" onmousedown="startHold('${dailyRawId[d]}')" onmouseup="clearHold()">
+                        <div style="display:flex; align-items:center; gap:10px;"><i class="fas fa-calendar-alt" style="color:var(--gold);"></i><span style="font-weight:bold;">${d}</span></div>
+                        <b style="color:var(--gold); font-size:18px;">$${daily[d].toFixed(2)}</b>
+                    </div>`;
+                }
+            });
+            document.getElementById('revenue-history-list').innerHTML = historyHtml;
+        }
+
+        function dbSearch() {
+            const val = document.getElementById('db-search').value.trim().toUpperCase();
+            const list = document.getElementById('db-rows');
+            const countEl = document.getElementById('db-count');
+            const moneyEl = document.getElementById('db-money');
+            if (!val) { list.innerHTML = ""; countEl.innerText = "0"; moneyEl.innerText = "$0.00"; return; }
+            let html = ""; let c = 0; let m = 0;
+            allData.forEach(row => {
+                const ids = parseIDs(row);
+                if (ids.pid.toUpperCase().includes(val)) {
+                    const p = parseFloat(row[4]) || 0; c++; m += p;
+                    const dateObj = new Date(row[0]);
+                    const d = dateObj.toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                    const t = dateObj.toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh' });
+                    html += `<tr><td>${d}</td><td>${t}</td><td>${row[1]}</td><td>${ids.pid}</td><td>${ids.zid}</td><td>${row[3]}</td><td>$${p.toFixed(2)}</td></tr>`;
+                }
+            });
+            list.innerHTML = html;
+            countEl.innerText = c; moneyEl.innerText = "$" + m.toFixed(2);
+        }
+
+        function showArchiveDetail(date) {
+            openPanel('archive-detail-panel');
+            let html = "";
+            allData.forEach(row => {
+                if (new Date(row[0]).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' }) === date) {
+                    const ids = parseIDs(row);
+                    html += `<tr><td>${new Date(row[0]).toLocaleTimeString()}</td><td>${row[1]}</td><td>${ids.pid}</td><td>${ids.zid}</td><td>${row[3]}</td><td style="color:var(--gold)">$${parseFloat(row[4]).toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('archive-detail-title').innerText = "ថ្ងៃទី " + date;
+            document.getElementById('archive-detail-rows').innerHTML = html;
+        }
+
+        function copy(t) { if(t && t !== "0") { navigator.clipboard.writeText(t); showAlert("ចម្លងរួចរាល់!"); } }
+        function showAlert(msg) { const b = document.getElementById('alert-box'); b.querySelector('span').innerText = msg; b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 3000); }
+        function touchStart(e) { startY = e.touches[0].pageY; }
+        function touchMove(e) { 
+            let move = e.touches[0].pageY - startY;
+            if (move > 150 && window.scrollY === 0) {
+                document.getElementById('refresh-indicator').style.display = 'block';
+            }
+        }
+        function touchEnd() { 
+            if (document.getElementById('refresh-indicator').style.display === 'block') { 
+                loadData(); 
+                setTimeout(() => document.getElementById('refresh-indicator').style.display = 'none', 1000); 
+            } 
+        }
+    </script>
+</body>
+</html>
