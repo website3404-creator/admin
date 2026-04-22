@@ -1,19 +1,15 @@
-// ហ្វាល sw.js សម្រាប់ឱ្យ App ដើរនៅ Background
-self.addEventListener('push', function(event) {
-    const options = {
-        body: 'មានការកម្មង់ចូលថ្មី សូមពិនិត្យមើល!',
-        icon: 'matin3-removebg-preview.png',
-        vibrate: [500, 110, 500, 110, 450, 110, 200, 110, 170, 40],
-        data: { url: './index.html' },
-        tag: 'order-notification',
-        renotify: true
-    };
-    event.waitUntil(
-        self.registration.showNotification('MATIN TOPUP: កម្មង់ថ្មី!', options)
-    );
+// ហ្វាល sw.js
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
 });
 
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    event.waitUntil(clients.openWindow(event.notification.data.url));
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
+});
+
+// មុខងារនេះព្យាយាមទាញទិន្នន័យទោះបិទអែប (សម្រាប់ Android)
+self.addEventListener('periodicsync', (event) => {
+    if (event.tag === 'check-new-orders') {
+        event.waitUntil(fetchNewOrders());
+    }
 });
